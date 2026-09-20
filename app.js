@@ -167,65 +167,16 @@ async function spotifyApiFetch(path, options) {
 
 
 // ---------------------------------------------------------------------
-// РОЗДІЛ 3. Spotify Web Playback SDK (це те, що реально грає музику)
+// РОЗДІЛ 3. Відкриття треку Spotify у самому Spotify
+// (Без Premium ми не можемо грати трек усередині нашого застосунку —
+// Spotify Web Playback SDK це технічно забороняє. Натомість відкриваємо
+// трек напряму в застосунку/на сайті Spotify, де він грає безкоштовно,
+// з рекламою — так само, як завжди.)
 // ---------------------------------------------------------------------
 
-let spotifyPlayer = null;
-let spotifyDeviceId = null;
-
-window.onSpotifyWebPlaybackSDKReady = () => {
-  if (!isLoggedIn()) return;
-  initSpotifyPlayer();
-};
-
-function initSpotifyPlayer() {
-  spotifyPlayer = new Spotify.Player({
-    name: "Котушка",
-    getOAuthToken: (callback) => callback(getAccessToken()),
-    volume: 0.8
-  });
-
-  spotifyPlayer.addListener("ready", ({ device_id }) => {
-    spotifyDeviceId = device_id;
-  });
-
-  spotifyPlayer.addListener("player_state_changed", (state) => {
-    if (!state) return;
-    onSpotifyStateChanged(state);
-  });
-
-  spotifyPlayer.addListener("initialization_error", ({ message }) => console.error(message));
-  spotifyPlayer.addListener("authentication_error", ({ message }) => console.error(message));
-  spotifyPlayer.addListener("account_error", ({ message }) => console.error("Потрібен Spotify Premium:", message));
-
-  spotifyPlayer.connect();
-}
-
-async function playSpotifyTrack(track) {
-  if (!spotifyDeviceId) {
-    alert("Плеєр Spotify ще підключається, спробуй за секунду.");
-    return;
-  }
-  await spotifyApiFetch(`/me/player/play?device_id=${spotifyDeviceId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ uris: [track.uri] })
-  });
-  setNowPlaying({
-    source: "spotify",
-    id: track.uri,
-    title: track.name,
-    artist: track.artists.map((a) => a.name).join(", "),
-    artwork: track.album.images[0] ? track.album.images[0].url : "",
-    durationMs: track.duration_ms
-  });
-}
-
-function onSpotifyStateChanged(state) {
-  if (currentTrack.source !== "spotify") return;
-  isPlaying = !state.paused;
-  updateTransportUI();
-  updateTapeCounter(state.position, state.duration);
+function openSpotifyTrack(spotifyUrl) {
+  if (!spotifyUrl) return;
+  window.open(spotifyUrl, "_blank");
 }
 
 
@@ -242,7 +193,8 @@ async function searchSpotify(query) {
     return;
   }
 
-  const response = await spotifyApiFetch(`/search?type=track&limit=20&q=${encodeURIComponent(query)}`);
+  // З лютого 2026 Spotify обмежив limit пошуку максимум до 10 за раз
+  const response = await spotifyApiFetch(`/search?type=track&limit=10&q=${encodeURIComponent(query)}`);
   if (!response.ok) return;
   const data = await response.json();
 
@@ -251,19 +203,22 @@ async function searchSpotify(query) {
   emptyEl.classList.toggle("hidden", tracks.length > 0);
 
   tracks.forEach((track) => {
+    const artist = track.artists.map((a) => a.name).join(", ");
+    const artwork = track.album.images[0] ? track.album.images[0].url : "";
     listEl.appendChild(buildTrackRow({
       title: track.name,
-      artist: track.artists.map((a) => a.name).join(", "),
-      artwork: track.album.images[2] ? track.album.images[2].url : (track.album.images[0] ? track.album.images[0].url : ""),
+      artist: artist,
+      artwork: track.album.images[2] ? track.album.images[2].url : artwork,
       source: "spotify",
-      onPlay: () => playSpotifyTrack(track),
+      external: true,
+      onPlay: () => openSpotifyTrack(track.external_urls.spotify),
       onAdd: () => addToLibrary({
         source: "spotify",
-        id: track.uri,
+        id: track.id,
         title: track.name,
-        artist: track.artists.map((a) => a.name).join(", "),
-        artwork: track.album.images[0] ? track.album.images[0].url : "",
-        uri: track.uri
+        artist: artist,
+        artwork: artwork,
+        url: track.external_urls.spotify
       })
     }));
   });
@@ -380,15 +335,10 @@ function renderLibrary() {
       artist: item.artist,
       artwork: item.artwork,
       source: item.source,
+      external: item.source === "spotify",
       onPlay: () => {
         if (item.source === "spotify") {
-          playSpotifyTrack({
-            uri: item.uri,
-            name: item.title,
-            artists: [{ name: item.artist }],
-            album: { images: [{ url: item.artwork }] },
-            duration_ms: 0
-          });
+          openSpotifyTrack(item.url);
         } else {
           playSoundCloudTrack(item);
         }
@@ -403,7 +353,7 @@ function renderLibrary() {
 // РОЗДІЛ 7. Побудова рядка треку (спільна і для пошуку, і для бібліотеки)
 // ---------------------------------------------------------------------
 
-function buildTrackRow({ title, artist, artwork, source, onPlay, onAdd, onRemove }) {
+function buildTrackRow({ title, artist, artwork, source, external, onPlay, onAdd, onRemove }) {
   const li = document.createElement("li");
   li.className = "track-row";
 
@@ -421,6 +371,12 @@ function buildTrackRow({ title, artist, artwork, source, onPlay, onAdd, onRemove
   info.querySelector(".track-row-title").textContent = title;
   info.querySelector(".track-row-artist").textContent = artist;
   li.appendChild(info);
+
+  // Підказка: "▶" — грає прямо тут, "↗" — відкриється в іншому застосунку
+  const actionHint = document.createElement("span");
+  actionHint.className = "row-action-hint";
+  actionHint.textContent = external ? "↗" : "▶";
+  li.appendChild(actionHint);
 
   const dot = document.createElement("span");
   dot.className = "source-dot " + source;
@@ -497,9 +453,9 @@ function updateTransportUI() {
 }
 
 function togglePlayPause() {
-  if (currentTrack.source === "spotify" && spotifyPlayer) {
-    spotifyPlayer.togglePlay();
-  } else if (currentTrack.source === "soundcloud" && scWidget) {
+  // Тепер усередині застосунку реально грає тільки SoundCloud —
+  // Spotify-треки відкриваються в самому Spotify.
+  if (currentTrack.source === "soundcloud" && scWidget) {
     isPlaying ? scWidget.pause() : scWidget.play();
   }
 }
@@ -564,9 +520,6 @@ async function init() {
   if (isLoggedIn()) {
     document.getElementById("screen-login").classList.add("hidden");
     document.getElementById("screen-app").classList.remove("hidden");
-    if (cameFromSpotifyRedirect || window.Spotify) {
-      initSpotifyPlayer();
-    }
     renderLibrary();
   }
 
