@@ -3,19 +3,18 @@
 // ==============================================
 const CONFIG = {
   // Встав сюди Client ID зі свого застосунку на developer.spotify.com/dashboard
-  SPOTIFY_CLIENT_ID: "ВСТАВ_СВІЙ_CLIENT_ID_СЮДИ",
+  SPOTIFY_CLIENT_ID: "91f1ba6c89824fc481c9e7e08c0982fe",
 
   // Має ЗБІГАТИСЯ 1-в-1 з "Redirect URI", який ти впишеш у налаштуваннях
   // застосунку на Spotify Dashboard. Поки тестуєш локально, залиши як є —
   // код підставить поточну адресу сторінки автоматично.
   REDIRECT_URI: window.location.origin + window.location.pathname,
 
-  // Права доступу, які просимо у користувача
+  // Права доступу, які просимо у користувача.
+  // Прослуховування прибрали (потребує Premium), тож достатньо базових прав
+  // для входу й пошуку.
   SCOPES: [
-    "streaming",
     "user-read-email",
-    "user-read-private",
-    "user-read-playback-state",
-    "user-modify-playback-state"
+    "user-read-private"
   ].join(" ")
 };
