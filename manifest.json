@@ -1,0 +1,19 @@
+{
+  "name": "Котушка",
+  "short_name": "Котушка",
+  "description": "Записуй треки зі Spotify та SoundCloud на одну плівку.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14121A",
+  "theme_color": "#14121A",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+/* ===== ТОКЕНИ ДИЗАЙНУ ===== */
+:root {
+  --bg: #14121A;
+  --surface: #1E1B26;
+  --surface-2: #262230;
+  --text: #F2EFE9;
+  --text-muted: #8B8695;
+  --accent: #E8A33D;
+  --accent-soft: rgba(232, 163, 61, 0.15);
+  --spotify: #1DB954;
+  --soundcloud: #FF5500;
+  --danger: #E2574C;
+  --radius: 14px;
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Manrope", -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+  color: inherit;
+}
+
+.hidden { display: none !important; }
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100%;
+}
+
+/* ===== ЕКРАН ВХОДУ ===== */
+#screen-login {
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+.login-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+.reel-mark {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+  animation: spin 6s linear infinite;
+}
+.reel-hub { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.brand {
+  font-family: var(--serif);
+  font-size: 40px;
+  font-weight: 600;
+  margin: 0;
+}
+.brand-small {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: 15px;
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.hint { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+.btn {
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.btn-accent { background: var(--accent); color: #1A1300; }
+.btn-mini {
+  background: var(--accent);
+  color: #1A1300;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ===== ГОЛОВНИЙ ЕКРАН ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+}
+
+.icon-btn {
+  font-size: 20px;
+  color: var(--text-muted);
+  padding: 6px;
+}
+
+.tab-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 0;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.search-bar input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+}
+.search-bar input:focus { outline: 2px solid var(--accent); }
+
+.track-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 100px;
+}
+
+.track-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--surface);
+}
+.track-row img {
+  width: 48px; height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+.track-row-info { flex: 1; min-width: 0; }
+.track-row-title {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-row-artist {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.source-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.source-dot.spotify { background: var(--spotify); }
+.source-dot.soundcloud { background: var(--soundcloud); }
+
+.empty-note {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 40px;
+  padding: 0 20px;
+  line-height: 1.5;
+}
+
+/* ===== МІНІ-ПЛЕЄР ===== */
+.mini-player {
+  position: absolute;
+  left: 12px; right: 12px;
+  bottom: 68px;
+  background: var(--surface);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.mini-art { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; background: var(--surface-2); }
+.mini-info { flex: 1; min-width: 0; text-align: left; }
+.mini-title { display: block; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-artist { display: block; font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ===== НИЖНЯ НАВІГАЦІЯ ===== */
+.bottom-nav {
+  display: flex;
+  border-top: 1px solid var(--surface);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-btn {
+  flex: 1;
+  padding: 14px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.nav-btn.active { color: var(--accent); }
+
+/* ===== ПОВНОЕКРАННИЙ ПЛЕЄР ===== */
+#screen-player {
+  padding: 12px 28px 32px;
+  align-items: center;
+  background: var(--bg);
+}
+.player-collapse { align-self: flex-start; font-size: 26px; }
+
+.player-art-wrap {
+  width: min(72vw, 300px);
+  height: min(72vw, 300px);
+  margin: 20px 0 28px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+.player-art { width: 100%; height: 100%; object-fit: cover; }
+
+.player-meta { text-align: center; margin-bottom: 24px; }
+.source-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.source-tag.spotify { background: rgba(29,185,84,0.15); color: var(--spotify); }
+.source-tag.soundcloud { background: rgba(255,85,0,0.15); color: var(--soundcloud); }
+
+.player-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  line-height: 1.25;
+}
+.player-artist { color: var(--text-muted); font-size: 15px; margin: 0; }
+
+/* Лічильник як на касетному магнітофоні */
+.tape-counter {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  gap: 3px;
+  height: 28px;
+  align-items: flex-end;
+  margin-bottom: 6px;
+}
+.tape-counter .tick {
+  flex: 1;
+  background: var(--surface-2);
+  border-radius: 2px;
+  height: 40%;
+  transition: background 0.2s, height 0.2s;
+}
+.tape-counter .tick.filled {
+  background: var(--accent);
+  height: 100%;
+}
+
+.time-row {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.transport-btn { font-size: 22px; color: var(--text); }
+.transport-main {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1A1300;
+  font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    /* Застосунок навмисно завжди темний — це частина ідентичності "плівки" */
+  }
+}
