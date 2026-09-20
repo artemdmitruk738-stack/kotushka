@@ -186,6 +186,12 @@ input {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.row-action-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
 .source-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
